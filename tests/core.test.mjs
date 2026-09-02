@@ -53,6 +53,26 @@ test('text import accepts pt-PT CSV and compact ranges', () => {
   assert.deepEqual(parsed, september.slice(0,2));
 });
 
+test('text import accepts an optional individual day rate', () => {
+  const parsed = parseText('data;inicio;fim;tarifa_diurna\n02/09/2026;08:00;13:00;16\n03/09/2026;08:00;10:00;99', '2026-09');
+  assert.deepEqual(parsed, [
+    {date:'2026-09-02',start:'08:00',end:'13:00',dayRate:16},
+    {date:'2026-09-03',start:'08:00',end:'10:00'}
+  ]);
+});
+
+test('individual rates override the monthly fallback without changing night pay', () => {
+  const t=totals([
+    {date:'2026-09-01',start:'06:00',end:'09:00',dayRate:16},
+    {date:'2026-09-02',start:'08:00',end:'10:00'}
+  ],10);
+  assert.equal(t.night,1);
+  assert.equal(t.day,4);
+  assert.equal(t.dayPay,52);
+  assert.equal(t.nightPay,13);
+  assert.equal(t.pay,65);
+});
+
 test('reconcile reports changes without duplicates', () => {
   const incoming = [...september.slice(1), {date:'2026-09-05',start:'08:00',end:'10:00'}];
   const diff = reconcileMonth(september, incoming, '2026-09');
@@ -60,6 +80,16 @@ test('reconcile reports changes without duplicates', () => {
   assert.equal(diff.removed.length,1);
   assert.equal(diff.unchanged.length,17);
   assert.equal(diff.shifts.length,18);
+});
+
+test('reconcile identifies a tariff change separately from new shifts', () => {
+  const before=[{date:'2026-09-02',start:'08:00',end:'10:00',dayRate:10}];
+  const after=[{date:'2026-09-02',start:'08:00',end:'10:00',dayRate:16}];
+  const diff=reconcileMonth(before,after,'2026-09');
+  assert.equal(diff.added.length,0);
+  assert.equal(diff.removed.length,0);
+  assert.equal(diff.changed.length,1);
+  assert.equal(diff.unchanged.length,0);
 });
 
 test('safe reconcile preserves existing shifts on an incomplete read', () => {

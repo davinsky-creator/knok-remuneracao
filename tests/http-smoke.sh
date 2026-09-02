@@ -12,7 +12,7 @@ for _ in $(seq 1 30); do
   if curl -fsS "http://127.0.0.1:$PORT/" >/tmp/knok-index.html; then break; fi
   sleep 0.1
 done
-grep -q 'Dashboard v2.2' /tmp/knok-index.html
+grep -q 'Dashboard v2.3' /tmp/knok-index.html
 for path in styles.css src/app.js src/core.mjs manifest.webmanifest sw.js extension/manifest.json extension/content.js knok-remuneracao-extension.zip; do
   curl -fsS "http://127.0.0.1:$PORT/$path" >/dev/null
 done

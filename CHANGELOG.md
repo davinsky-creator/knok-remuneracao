@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.3.0 - 2026-09-02
+- tarifa diurna individual por turno, com fallback para a tarifa padrão mensal;
+- novo assistente de importação em três etapas para extensão e CSV/texto;
+- revisão completa de turnos novos, iguais, alterados e a remover antes da sincronização;
+- calendário mensal visual com distinção entre turnos diurnos, noturnos e mistos;
+- acompanhamento estimado, confirmado e pago, incluindo diferença, data e notas;
+- exportação CSV com tarifa individual e migração compatível com dados/backup anteriores.
+
 ## 2.2.0 - 2026-09-02
 - botão para limpar todos os dados locais e preparar o dashboard para outro utilizador;
 - funcionamento em memória quando o `localStorage` está bloqueado;

@@ -1,4 +1,4 @@
-const CACHE='knok-remuneracao-v2.2.0';
+const CACHE='knok-remuneracao-v2.3.0';
 const ASSETS=['/','/index.html','/styles.css','/src/app.js','/src/core.mjs','/manifest.webmanifest','/icons/icon-192.png','/icons/icon-512.png'];
 
 self.addEventListener('install',event=>{

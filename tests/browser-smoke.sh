@@ -21,8 +21,8 @@ NODE
 )
 PROFILE=$(mktemp -d /tmp/knok-chrome-main-XXXX)
 DOM=$($BROWSER --headless=new --no-sandbox --disable-gpu --user-data-dir="$PROFILE" --virtual-time-budget=2500 --dump-dom "http://127.0.0.1:$PORT/#knok=$PAYLOAD" 2>/dev/null)
-grep -q '18 turnos' <<<"$DOM"
-grep -q '647' <<<"$DOM"
+grep -q 'Revisão antes de sincronizar' <<<"$DOM"
+grep -q '18' <<<"$DOM"
 PROFILE2=$(mktemp -d /tmp/knok-chrome-mock-XXXX)
 MOCK=$($BROWSER --headless=new --no-sandbox --disable-gpu --user-data-dir="$PROFILE2" --virtual-time-budget=2000 --dump-dom "http://127.0.0.1:$PORT/tests/mock-knok.html" 2>/dev/null)
 grep -q 'Sincronizar · 18' <<<"$MOCK"

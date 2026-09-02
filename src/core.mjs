@@ -70,7 +70,10 @@ export function normalizeShift(input) {
   const date = normalizeDate(input?.date, input?.date?.slice?.(0, 7));
   const start = normalizeTime(input?.start);
   const end = normalizeTime(input?.end);
-  return date && start && end && start !== end ? { date, start, end } : null;
+  if (!date || !start || !end || start === end) return null;
+  const rawRate = input?.dayRate;
+  const dayRate = rawRate === '' || rawRate == null ? null : Number(rawRate);
+  return DAY_RATES.includes(dayRate) ? { date, start, end, dayRate } : { date, start, end };
 }
 
 export function dedupeShifts(shifts) {
@@ -101,14 +104,15 @@ export function parseText(text, selectedMonth) {
     const line = raw.trim();
     if (!line || /^(data|date|dia)[;,\t ]/i.test(line)) continue;
     const parts = line.split(/[;,\t]/).map(x => x.trim()).filter(Boolean);
-    let d, a, b;
-    if (parts.length >= 3) [d, a, b] = parts;
+    let d, a, b, rate;
+    if (parts.length >= 3) [d, a, b, rate] = parts;
     else {
       const m = line.match(/^(\d{1,2}(?:[/-]\d{1,2}(?:[/-]\d{2,4})?)?|\d{4}-\d{2}-\d{2})\s+(\d{1,2}[:.]\d{2})\s*[-–—]\s*(\d{1,2}(?:[:.]\d{2}|\.\.\.|…)?)/);
       if (m) [, d, a, b] = m;
     }
     const date = normalizeDate(d, selectedMonth), start = normalizeTime(a), end = normalizeTime(b);
-    if (date && start && end && start !== end) result.push({ date, start, end });
+    const dayRate = Number(String(rate ?? '').replace(/[^\d.,]/g, '').replace(',', '.'));
+    if (date && start && end && start !== end) result.push({ date, start, end, ...(DAY_RATES.includes(dayRate) ? { dayRate } : {}) });
   }
   return dedupeShifts(result);
 }
@@ -130,20 +134,21 @@ export function splitShift(shift, dayRate = DEFAULT_DAY_RATE) {
   const totalMinutes = end - start;
   const night = nightMinutes / 60;
   const day = (totalMinutes - nightMinutes) / 60;
-  return { ...s, day, night, pay: day * dayRate + night * NIGHT_RATE };
+  const appliedDayRate = DAY_RATES.includes(Number(s.dayRate)) ? Number(s.dayRate) : dayRate;
+  return { ...s, day, night, appliedDayRate, pay: day * appliedDayRate + night * NIGHT_RATE };
 }
 
 export function totals(shifts, dayRate = DEFAULT_DAY_RATE) {
-  let day = 0, night = 0;
+  let day = 0, night = 0, dayPay = 0;
   for (const s of dedupeShifts(shifts)) {
     const row = splitShift(s, dayRate);
-    day += row.day; night += row.night;
+    day += row.day; night += row.night; dayPay += row.day * row.appliedDayRate;
   }
   return {
     day, night, total: day + night,
-    dayPay: day * dayRate,
+    dayPay,
     nightPay: night * NIGHT_RATE,
-    pay: day * dayRate + night * NIGHT_RATE
+    pay: dayPay + night * NIGHT_RATE
   };
 }
 
@@ -183,12 +188,15 @@ export function decodePayload(encoded) {
 export function reconcileMonth(existing, incoming, month) {
   const before = onlyMonth(existing, month);
   const after = onlyMonth(incoming, month);
-  const beforeKeys = new Set(before.map(shiftKey));
+  const beforeByKey = new Map(before.map(s => [shiftKey(s), s]));
+  const beforeKeys = new Set(beforeByKey.keys());
   const afterKeys = new Set(after.map(shiftKey));
   const added = after.filter(s => !beforeKeys.has(shiftKey(s)));
   const removed = before.filter(s => !afterKeys.has(shiftKey(s)));
-  const unchanged = after.filter(s => beforeKeys.has(shiftKey(s)));
-  return { shifts: after, added, removed, unchanged };
+  const changed = after.filter(s => beforeKeys.has(shiftKey(s)) && (s.dayRate ?? null) !== (beforeByKey.get(shiftKey(s)).dayRate ?? null));
+  const changedKeys = new Set(changed.map(shiftKey));
+  const unchanged = after.filter(s => beforeKeys.has(shiftKey(s)) && !changedKeys.has(shiftKey(s)));
+  return { shifts: after, added, removed, changed, unchanged };
 }
 
 export function safeReconcileMonth(existing, incoming, month, diagnostics = null) {

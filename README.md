@@ -2,13 +2,17 @@
 
 Dashboard local para sincronizar turnos visíveis no calendário Knok e calcular uma estimativa mensal.
 
-## Versão 2.2.0
+## Versão 2.3.0
 
 ### Princípios
 - **Sem OCR** no fluxo principal.
 - **Sem leitura remota do URL Knok**: a sessão autenticada é lida apenas pela extensão no domínio `doctors.knokcare.com`.
 - **Sincronização segura**: leituras incompletas nunca apagam turnos existentes automaticamente.
-- **Revisão de remoções**: uma leitura completa que implique apagar turnos abre uma revisão antes de aplicar.
+- **Assistente de importação**: escolha guiada entre extensão Knok e CSV/texto.
+- **Revisão integral**: todas as importações mostram turnos novos, iguais, alterados e a remover antes de guardar.
+- **Calendário mensal**: grelha visual com turnos diurnos, noturnos e mistos, horário e estimativa.
+- **Tarifa por turno**: cada turno pode usar €10, €12 ou €16, mantendo uma tarifa padrão mensal.
+- **Estado financeiro**: acompanhamento entre valor estimado, confirmado e pago, com diferença, data e notas.
 - **Idempotência**: voltar a sincronizar o mesmo calendário não cria duplicados.
 - **Recuperação**: undo da última alteração, exportação e restauro de backup JSON.
 - **Privacidade partilhada**: limpeza explícita de todos os dados locais para outra pessoa usar o mesmo dispositivo.
@@ -18,7 +22,7 @@ Dashboard local para sincronizar turnos visíveis no calendário Knok e calcular
 
 ## Cálculo
 - 00:00–07:00: €13/h.
-- Restantes horas: tarifa diurna selecionável (€10/€12/€16 por defeito na interface).
+- Restantes horas: tarifa diurna selecionável (€10/€12/€16), por turno ou através do valor padrão do mês.
 - Turnos que passam a meia-noite são tratados como turno contínuo para o dia seguinte.
 - Início e fim iguais são rejeitados para evitar interpretar acidentalmente 24 horas.
 

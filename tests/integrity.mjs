@@ -7,6 +7,7 @@ const required=['index.html','styles.css','src/app.js','src/core.mjs','manifest.
 for(const file of required)assert.ok(fs.existsSync(path.join(root,file)),`missing ${file}`);
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 for(const ref of ['/styles.css','/src/app.js','/manifest.webmanifest','/knok-remuneracao-extension.zip'])assert.ok(html.includes(ref),`index missing ${ref}`);
+for(const feature of ['Dashboard v2.3','Acompanhamento do pagamento','Calendário mensal','Revisão antes de sincronizar','shiftRate'])assert.ok(html.includes(feature),`index missing v2.3 feature: ${feature}`);
 const manifest=JSON.parse(fs.readFileSync(path.join(root,'extension/manifest.json'),'utf8'));
 assert.equal(manifest.version,'2.1.0');
 assert.deepEqual(manifest.content_scripts[0].js,['shared.js','content.js']);

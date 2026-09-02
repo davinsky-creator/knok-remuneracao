@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#0ea5c6">
-  <meta name="description" content="Dashboard local para cálculo e sincronização de turnos Knok.">
+  <meta name="description" content="Dashboard local para cálculo, revisão e acompanhamento de turnos Knok.">
   <title>Knok · Remuneração</title>
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="icon" href="/icons/icon-192.png">
@@ -12,38 +12,80 @@
 </head>
 <body>
 <header class="topbar">
-  <a class="brand" href="/"><span class="brand-mark">k</span><span><strong>Knok · Remuneração</strong><small>Dashboard v2.2</small></span></a>
-  <button class="button primary" id="openImport">Sincronizar Knok</button>
+  <a class="brand" href="/"><span class="brand-mark">k</span><span><strong>Knok · Remuneração</strong><small>Dashboard v2.3</small></span></a>
+  <button class="button primary" id="openImport">Importar turnos</button>
 </header>
 <div class="layout">
   <aside class="sidebar">
-    <p class="eyebrow">Histórico</p><h2>Meses</h2>
+    <p class="eyebrow">Histórico</p><h2>Meses calculados</h2>
     <nav id="monthList" class="month-list"></nav>
     <div id="monthEmpty" class="muted-card">Sem meses importados.</div>
   </aside>
   <main class="main">
-    <section class="heading" style="justify-content:flex-end"><input type="month" id="monthInput" aria-label="Mês do resumo"></section>
-    <div class="notice" id="notice"><span id="noticeText">Pronto para sincronizar.</span><button class="notice-action" id="undoSync" hidden>Desfazer</button></div>
+    <section class="heading"><div><p class="eyebrow">Resumo mensal</p><h1 id="monthTitle">Remuneração</h1></div><input type="month" id="monthInput" aria-label="Mês do resumo"></section>
+    <div class="notice" id="notice"><span id="noticeText">Pronto para importar.</span><button class="notice-action" id="undoSync" hidden>Desfazer</button></div>
     <section class="cards">
-      <article class="hero"><span>Estimativa do mês</span><strong id="totalPay">0,00 €</strong><small id="totalHours">0 h trabalhadas</small></article>
-      <article class="card"><span>Horas diurnas</span><strong id="dayHours">0 h</strong><div class="rates" id="rates"><button data-rate="10">€10</button><button data-rate="12">€12</button><button data-rate="16">€16</button></div><small id="dayPay">0,00 €</small></article>
+      <article class="hero"><span>Estimativa do mês</span><strong id="totalPay">0,00 €</strong><small id="totalHours">0 h trabalhadas</small><span class="status-badge" id="heroStatus">Estimado</span></article>
+      <article class="card"><span>Horas diurnas</span><strong id="dayHours">0 h</strong><p>Tarifa padrão para turnos sem tarifa individual</p><div class="rates" id="rates"><button data-rate="10">€10</button><button data-rate="12">€12</button><button data-rate="16">€16</button></div><small id="dayPay">0,00 €</small></article>
       <article class="card"><span>Horas noturnas</span><strong id="nightHours">0 h</strong><p>00:00–07:00 · €13/h</p><small id="nightPay">0,00 €</small></article>
+    </section>
+    <section class="panel payment-panel">
+      <div class="panel-head"><div><h2>Acompanhamento do pagamento</h2><p>Compara a estimativa com o valor confirmado e recebido.</p></div><div class="status-toggle" id="paymentStatus"><button data-status="estimated">Estimado</button><button data-status="confirmed">Confirmado</button><button data-status="paid">Pago</button></div></div>
+      <div class="payment-grid">
+        <label>Valor confirmado (€)<input id="confirmedAmount" type="number" min="0" step="0.01" placeholder="—"></label>
+        <label>Valor pago (€)<input id="paidAmount" type="number" min="0" step="0.01" placeholder="—"></label>
+        <label>Data de pagamento<input id="paymentDate" type="date"></label>
+        <label>Notas<input id="paymentNotes" type="text" maxlength="160" placeholder="Referência, acerto, observação…"></label>
+        <div class="payment-difference"><span>Diferença face à estimativa</span><strong id="paymentDifference">—</strong></div>
+      </div>
+    </section>
+    <section class="panel calendar-panel">
+      <div class="panel-head"><div><h2>Calendário mensal</h2><p>Clica num turno para editar horário ou tarifa.</p></div><div class="calendar-legend"><span><i class="day-dot"></i>Diurno</span><span><i class="night-dot"></i>Noturno</span><span><i class="mixed-dot"></i>Misto</span></div></div>
+      <div class="calendar-scroll"><div class="calendar-weekdays"><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span><span>Dom</span></div><div class="calendar-grid" id="calendarGrid"></div></div>
     </section>
     <section class="panel">
       <div class="panel-head"><div><h2>Detalhe dos turnos</h2><p id="countLabel">0 turnos</p></div><div class="actions"><button class="button" id="addShift">Adicionar turno</button><button class="button" id="exportCsv">Exportar CSV</button></div></div>
-      <div class="table-wrap"><table><thead><tr><th>Data</th><th>Horário</th><th>Diurnas</th><th>Noturnas</th><th>Estimativa</th><th></th></tr></thead><tbody id="rows"></tbody></table><div class="empty" id="emptyState">Ainda não existem turnos neste mês.</div></div>
+      <div class="table-wrap"><table><thead><tr><th>Data</th><th>Horário</th><th>Tarifa diurna</th><th>Diurnas</th><th>Noturnas</th><th>Estimativa</th><th></th></tr></thead><tbody id="rows"></tbody></table><div class="empty" id="emptyState">Ainda não existem turnos neste mês.</div></div>
     </section>
-    <section class="privacy"><div><strong>Dados locais e recuperáveis</strong><p>Os turnos ficam apenas neste browser. Faz um backup JSON antes de mudar de dispositivo ou usa “Limpar dados” para entregar a ferramenta a outra pessoa.</p></div><div class="actions"><button class="button" id="exportBackup">Exportar backup</button><button class="button" id="importBackup">Restaurar backup</button><button class="button danger" id="clearData">Limpar dados</button><input type="file" id="backupFile" accept="application/json,.json" hidden></div></section>
+    <section class="privacy"><div><strong>Dados privados neste dispositivo</strong><p>Os turnos não são enviados para um servidor. Exporta um backup para os mover, ou limpa tudo para outra pessoa utilizar este browser.</p></div><div class="actions"><button class="button" id="exportBackup">Exportar backup</button><button class="button" id="importBackup">Restaurar backup</button><button class="button danger" id="clearData">Limpar dados</button><input type="file" id="backupFile" accept="application/json,.json" hidden></div></section>
   </main>
 </div>
 
-<dialog id="importDialog"><div class="dialog-card"><header><div><h2>Sincronizar Knok</h2><p>Sem screenshots nem URL remoto.</p></div><button class="icon" data-close>×</button></header><div class="tabs"><button class="active" data-tab="direct">Extensão</button><button data-tab="text">CSV / texto</button></div>
-<section class="tab active" data-panel="direct"><div class="success"><strong>v2.1</strong> · a extensão valida a grelha, conta eventos e envia um diagnóstico junto com os turnos.</div><p class="muted">Se uma leitura parecer incompleta, o dashboard entra em modo seguro e preserva os turnos existentes em vez de os apagar.</p><a class="button primary full" href="/knok-remuneracao-extension.zip" download>Descarregar extensão v2.1</a><div class="warn">No Brave Android, um website não consegue ler diretamente a sessão de outro domínio. O dashboard continua funcional como PWA, mas a leitura automática da Knok exige um contexto com permissão sobre doctors.knokcare.com.</div></section>
-<section class="tab" data-panel="text"><textarea id="importText" placeholder="05/09/2026;08:00;13:00"></textarea><div class="row-help"><span id="foundCount">0 linhas válidas</span><span id="parseError"></span></div><button class="button primary full" id="confirmText">Importar e substituir mês</button></section></div></dialog>
+<dialog id="importDialog"><div class="dialog-card import-assistant">
+  <header><div><p class="eyebrow">Assistente de importação</p><h2>Importar turnos</h2><p id="importSubtitle">Escolhe como queres obter os turnos.</p></div><button class="icon" data-close aria-label="Fechar">×</button></header>
+  <div class="steps"><span class="active" data-step-indicator="1"><b>1</b> Origem</span><span data-step-indicator="2"><b>2</b> Dados</span><span data-step-indicator="3"><b>3</b> Revisão</span></div>
+  <section class="wizard-step active" data-wizard-step="1">
+    <button class="source-card" data-source="extension"><span class="source-icon">↗</span><span><strong>Extensão Knok</strong><small>Recomendado · lê o mês aberto no calendário</small></span></button>
+    <button class="source-card" data-source="text"><span class="source-icon">CSV</span><span><strong>CSV ou texto</strong><small>Cola linhas ou o conteúdo de um ficheiro exportado</small></span></button>
+  </section>
+  <section class="wizard-step" data-wizard-step="2" data-source-panel="extension">
+    <div class="success"><strong>Importação protegida</strong><br>A extensão lê apenas a grelha Knok aberta, valida o resultado e traz os turnos para revisão. Uma leitura nunca é aplicada sem confirmação.</div>
+    <ol class="instruction-list"><li>Instala a extensão v2.1.</li><li>Abre o mês completo no calendário Knok.</li><li>Na extensão, escolhe “Enviar para o dashboard”.</li></ol>
+    <a class="button primary full" href="/knok-remuneracao-extension.zip" download>Descarregar extensão Knok</a>
+    <div class="warn">A página Knok exige uma sessão autenticada. Por segurança do browser, o dashboard não consegue importar diretamente apenas através do URL.</div>
+  </section>
+  <section class="wizard-step" data-wizard-step="2" data-source-panel="text">
+    <label class="field-label">Mês de referência<input type="month" id="importMonth"></label>
+    <label class="field-label">Turnos<textarea id="importText" placeholder="data;inicio;fim;tarifa&#10;05/09/2026;08:00;13:00;12"></textarea></label>
+    <div class="row-help"><span id="foundCount">0 linhas válidas</span><span id="parseError"></span></div>
+    <p class="muted">A tarifa é opcional e pode ser 10, 12 ou 16. Antes de guardar, verás tudo o que vai mudar.</p>
+    <button class="button primary full" id="prepareText">Continuar para revisão</button>
+  </section>
+  <footer><button class="button" id="importBack" hidden>Voltar</button><span></span><button class="button" data-close>Cancelar</button></footer>
+</div></dialog>
 
-<dialog id="shiftDialog"><form class="dialog-card" id="shiftForm"><header><div><h2 id="shiftTitle">Adicionar turno</h2><p>Corrige qualquer leitura antes do cálculo.</p></div><button class="icon" type="button" data-close-shift>×</button></header><section class="form-grid"><label>Data<input type="date" id="shiftDate" required></label><label>Início<input type="time" id="shiftStart" required></label><label>Fim<input type="time" id="shiftEnd" required></label><p class="form-error" id="shiftError"></p></section><footer><button class="button" type="button" data-close-shift>Cancelar</button><button class="button primary" type="submit">Guardar</button></footer></form></dialog>
+<dialog id="shiftDialog"><form class="dialog-card" id="shiftForm"><header><div><h2 id="shiftTitle">Adicionar turno</h2><p>Define o horário e, se necessário, uma tarifa só para este turno.</p></div><button class="icon" type="button" data-close-shift>×</button></header><section class="form-grid"><label>Data<input type="date" id="shiftDate" required></label><label>Início<input type="time" id="shiftStart" required></label><label>Fim<input type="time" id="shiftEnd" required></label><label>Tarifa diurna<select id="shiftRate"><option value="">Usar tarifa padrão do mês</option><option value="10">€10/h</option><option value="12">€12/h</option><option value="16">€16/h</option></select></label><p class="form-error" id="shiftError"></p></section><footer><button class="button" type="button" data-close-shift>Cancelar</button><button class="button primary" type="submit">Guardar turno</button></footer></form></dialog>
 
-<dialog id="reviewDialog"><div class="dialog-card"><header><div><h2>Rever sincronização</h2><p id="reviewSummary">Foram detetadas alterações.</p></div><button class="icon" data-close-review>×</button></header><section class="review-body"><div class="review-grid"><div><strong>Novos</strong><div id="reviewAdded" class="change-list"></div></div><div><strong>A remover</strong><div id="reviewRemoved" class="change-list danger-list"></div></div></div><div id="reviewDiagnostics" class="diagnostics"></div></section><footer><button class="button" id="keepExisting">Manter existentes</button><button class="button primary" id="applyReview">Aplicar sincronização</button></footer></div></dialog>
+<dialog id="reviewDialog"><div class="dialog-card review-card"><header><div><p class="eyebrow">Passo 3 de 3</p><h2>Revisão antes de sincronizar</h2><p id="reviewSummary">Confirma os dados antes de alterar o mês.</p></div><button class="icon" data-close-review>×</button></header>
+  <section class="review-body">
+    <div class="review-stats"><div><strong id="reviewIncomingCount">0</strong><span>Recebidos</span></div><div class="positive"><strong id="reviewAddedCount">0</strong><span>Novos</span></div><div><strong id="reviewUnchangedCount">0</strong><span>Iguais</span></div><div class="negative"><strong id="reviewRemovedCount">0</strong><span>A remover</span></div></div>
+    <div class="review-table-wrap"><table><thead><tr><th>Estado</th><th>Data</th><th>Horário</th><th>Tarifa</th><th>Estimativa</th></tr></thead><tbody id="reviewRows"></tbody></table></div>
+    <details class="removal-details"><summary>Ver turnos que não vieram na importação (<span id="reviewRemovalDetailCount">0</span>)</summary><div id="reviewRemoved" class="change-list danger-list"></div></details>
+    <div id="reviewDiagnostics" class="diagnostics"></div>
+    <div class="review-warning" id="reviewWarning"></div>
+  </section>
+  <footer><button class="button" id="keepExisting">Juntar sem remover</button><button class="button primary" id="applyReview">Substituir mês</button></footer>
+</div></dialog>
 
 <script type="module" src="/src/app.js"></script>
 </body></html>
