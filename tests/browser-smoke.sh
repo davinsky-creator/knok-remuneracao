@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-PORT="${PORT:-8765}"
+PORT="${PORT:-$(python3 - <<'PYPORT'
+import socket
+s=socket.socket(); s.bind(("127.0.0.1",0)); print(s.getsockname()[1]); s.close()
+PYPORT
+)}"
 BROWSER="$(command -v chromium || command -v google-chrome || command -v chromium-browser || true)"
 if [ -z "$BROWSER" ]; then echo "No Chromium/Chrome browser found" >&2; exit 1; fi
 cd "$ROOT"

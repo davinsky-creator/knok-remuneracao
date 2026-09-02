@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
-PORT="${PORT:-8765}"
+PORT="${PORT:-$(python3 - <<'PYPORT'
+import socket
+s=socket.socket(); s.bind(("127.0.0.1",0)); print(s.getsockname()[1]); s.close()
+PYPORT
+)}"
 python3 -m http.server "$PORT" --bind 127.0.0.1 >/tmp/knok-http-smoke.log 2>&1 &
 PID=$!
 trap 'kill "$PID" 2>/dev/null || true' EXIT
