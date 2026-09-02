@@ -38,7 +38,7 @@ function load(){
   return emptyState();
 }
 let state=load(),editingRef=null,pendingReview=null;
-const save=()=>localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+const save=()=>{try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));return true}catch{return false}};
 function monthData(month=state.currentMonth,create=false){if(!state.months[month]&&create)state.months[month]={dayRate:DEFAULT_DAY_RATE,shifts:[],updatedAt:null,source:null};return state.months[month]||{dayRate:DEFAULT_DAY_RATE,shifts:[],updatedAt:null,source:null}}
 function labelMonth(m){const[y,mo]=m.split('-').map(Number);const s=monthFmt.format(new Date(Date.UTC(y,mo-1,1)));return s[0].toUpperCase()+s.slice(1)}
 function fmtH(v){const n=Math.round(v*100)/100;return `${Number.isInteger(n)?n:n.toFixed(2).replace('.',',')} h`}
@@ -107,6 +107,7 @@ function downloadBlob(name,type,text){const a=document.createElement('a');a.href
 $('#exportBackup').onclick=()=>{const backup={schema:'knok-remuneracao-backup',version:STATE_VERSION,exportedAt:new Date().toISOString(),state:{...state,undo:null}};downloadBlob(`knok-remuneracao-backup-${new Date().toISOString().slice(0,10)}.json`,'application/json',JSON.stringify(backup,null,2))};
 $('#importBackup').onclick=()=>$('#backupFile').click();
 $('#backupFile').onchange=async e=>{const file=e.target.files?.[0];e.target.value='';if(!file)return;if(file.size>2_000_000){setNotice('Backup recusado: ficheiro demasiado grande.');return}try{const obj=JSON.parse(await file.text());if(obj?.schema!=='knok-remuneracao-backup'||!obj?.state?.months)throw new Error('Formato de backup inválido');state=sanitizeState(obj.state);save();render();setNotice('Backup restaurado com sucesso.')}catch(err){setNotice(`Não foi possível restaurar o backup: ${err.message}`)}};
+$('#clearData').onclick=()=>{if(!confirm('Eliminar todos os meses, turnos e tarifas guardados neste dispositivo?'))return;try{for(const key of [STORAGE_KEY,'knok-remuneracao-final-v1','knok-remuneracao-definitivo-v1','knok-remuneracao-clean-v1'])localStorage.removeItem(key)}catch{}state=emptyState();editingRef=null;pendingReview=null;render();setNotice('Dados eliminados. A ferramenta está pronta para outra pessoa.')};
 
 consumeHash();render();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});

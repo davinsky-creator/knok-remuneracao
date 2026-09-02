@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.0 - 2026-09-02
+- botão para limpar todos os dados locais e preparar o dashboard para outro utilizador;
+- funcionamento em memória quando o `localStorage` está bloqueado;
+- teste de integridade compatível com Windows e Linux;
+- renovação do cache da PWA para distribuir imediatamente a nova versão.
+
 ## 2.1.0 - 2026-09-02
 - sincronização segura em leituras incompletas;
 - revisão explícita antes de remover turnos existentes;

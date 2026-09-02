@@ -12,7 +12,7 @@
 </head>
 <body>
 <header class="topbar">
-  <a class="brand" href="/"><span class="brand-mark">k</span><span><strong>Knok · Remuneração</strong><small>Dashboard v2.1</small></span></a>
+  <a class="brand" href="/"><span class="brand-mark">k</span><span><strong>Knok · Remuneração</strong><small>Dashboard v2.2</small></span></a>
   <button class="button primary" id="openImport">Sincronizar Knok</button>
 </header>
 <div class="layout">
@@ -33,7 +33,7 @@
       <div class="panel-head"><div><h2>Detalhe dos turnos</h2><p id="countLabel">0 turnos</p></div><div class="actions"><button class="button" id="addShift">Adicionar turno</button><button class="button" id="exportCsv">Exportar CSV</button></div></div>
       <div class="table-wrap"><table><thead><tr><th>Data</th><th>Horário</th><th>Diurnas</th><th>Noturnas</th><th>Estimativa</th><th></th></tr></thead><tbody id="rows"></tbody></table><div class="empty" id="emptyState">Ainda não existem turnos neste mês.</div></div>
     </section>
-    <section class="privacy"><div><strong>Dados locais e recuperáveis</strong><p>Os turnos ficam neste browser. Faz um backup JSON sempre que quiseres mudar de dispositivo ou antes de uma alteração importante.</p></div><div class="actions"><button class="button" id="exportBackup">Exportar backup</button><button class="button" id="importBackup">Restaurar backup</button><input type="file" id="backupFile" accept="application/json,.json" hidden></div></section>
+    <section class="privacy"><div><strong>Dados locais e recuperáveis</strong><p>Os turnos ficam apenas neste browser. Faz um backup JSON antes de mudar de dispositivo ou usa “Limpar dados” para entregar a ferramenta a outra pessoa.</p></div><div class="actions"><button class="button" id="exportBackup">Exportar backup</button><button class="button" id="importBackup">Restaurar backup</button><button class="button danger" id="clearData">Limpar dados</button><input type="file" id="backupFile" accept="application/json,.json" hidden></div></section>
   </main>
 </div>
 

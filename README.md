@@ -2,7 +2,7 @@
 
 Dashboard local para sincronizar turnos visíveis no calendário Knok e calcular uma estimativa mensal.
 
-## Versão 2.1.0
+## Versão 2.2.0
 
 ### Princípios
 - **Sem OCR** no fluxo principal.
@@ -11,6 +11,8 @@ Dashboard local para sincronizar turnos visíveis no calendário Knok e calcular
 - **Revisão de remoções**: uma leitura completa que implique apagar turnos abre uma revisão antes de aplicar.
 - **Idempotência**: voltar a sincronizar o mesmo calendário não cria duplicados.
 - **Recuperação**: undo da última alteração, exportação e restauro de backup JSON.
+- **Privacidade partilhada**: limpeza explícita de todos os dados locais para outra pessoa usar o mesmo dispositivo.
+- **Fallback em memória**: a interface continua utilizável quando o browser bloqueia o armazenamento local.
 - **Dados locais**: o dashboard guarda os dados em `localStorage`.
 - **PWA**: recursos principais disponíveis offline depois da primeira visita.
 

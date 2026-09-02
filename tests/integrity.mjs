@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
-const root=path.resolve(new URL('..',import.meta.url).pathname);
+const root=fileURLToPath(new URL('..',import.meta.url));
 const required=['index.html','styles.css','src/app.js','src/core.mjs','manifest.webmanifest','sw.js','vercel.json','extension/manifest.json','extension/shared.js','extension/content.js','extension/background.js','extension/popup.html','extension/popup.css','extension/popup.js','icons/icon-192.png','icons/icon-512.png'];
 for(const file of required)assert.ok(fs.existsSync(path.join(root,file)),`missing ${file}`);
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
