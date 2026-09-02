@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0ea5c6">
+  <meta name="description" content="Dashboard local para cálculo e sincronização de turnos Knok.">
+  <title>Knok · Remuneração</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/"><span class="brand-mark">k</span><span><strong>Knok · Remuneração</strong><small>Dashboard v2.1</small></span></a>
+  <button class="button primary" id="openImport">Sincronizar Knok</button>
+</header>
+<div class="layout">
+  <aside class="sidebar">
+    <p class="eyebrow">Histórico</p><h2>Meses</h2>
+    <nav id="monthList" class="month-list"></nav>
+    <div id="monthEmpty" class="muted-card">Sem meses importados.</div>
+  </aside>
+  <main class="main">
+    <section class="heading"><div><p class="eyebrow">Resumo mensal</p><h1>Quanto vou receber?</h1><p>00:00–07:00 a €13/h. Restantes horas à tarifa diurna escolhida.</p></div><input type="month" id="monthInput"></section>
+    <div class="notice" id="notice"><span id="noticeText">Pronto para sincronizar.</span><button class="notice-action" id="undoSync" hidden>Desfazer</button></div>
+    <section class="cards">
+      <article class="hero"><span>Estimativa do mês</span><strong id="totalPay">0,00 €</strong><small id="totalHours">0 h trabalhadas</small></article>
+      <article class="card"><span>Horas diurnas</span><strong id="dayHours">0 h</strong><div class="rates" id="rates"><button data-rate="10">€10</button><button data-rate="12">€12</button><button data-rate="16">€16</button></div><small id="dayPay">0,00 €</small></article>
+      <article class="card"><span>Horas noturnas</span><strong id="nightHours">0 h</strong><p>00:00–07:00 · €13/h</p><small id="nightPay">0,00 €</small></article>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><div><h2>Detalhe dos turnos</h2><p id="countLabel">0 turnos</p></div><div class="actions"><button class="button" id="addShift">Adicionar turno</button><button class="button" id="exportCsv">Exportar CSV</button></div></div>
+      <div class="table-wrap"><table><thead><tr><th>Data</th><th>Horário</th><th>Diurnas</th><th>Noturnas</th><th>Estimativa</th><th></th></tr></thead><tbody id="rows"></tbody></table><div class="empty" id="emptyState">Ainda não existem turnos neste mês.</div></div>
+    </section>
+    <section class="privacy"><div><strong>Dados locais e recuperáveis</strong><p>Os turnos ficam neste browser. Faz um backup JSON sempre que quiseres mudar de dispositivo ou antes de uma alteração importante.</p></div><div class="actions"><button class="button" id="exportBackup">Exportar backup</button><button class="button" id="importBackup">Restaurar backup</button><input type="file" id="backupFile" accept="application/json,.json" hidden></div></section>
+  </main>
+</div>
+
+<dialog id="importDialog"><div class="dialog-card"><header><div><h2>Sincronizar Knok</h2><p>Sem screenshots nem URL remoto.</p></div><button class="icon" data-close>×</button></header><div class="tabs"><button class="active" data-tab="direct">Extensão</button><button data-tab="text">CSV / texto</button></div>
+<section class="tab active" data-panel="direct"><div class="success"><strong>v2.1</strong> · a extensão valida a grelha, conta eventos e envia um diagnóstico junto com os turnos.</div><p class="muted">Se uma leitura parecer incompleta, o dashboard entra em modo seguro e preserva os turnos existentes em vez de os apagar.</p><a class="button primary full" href="/knok-remuneracao-extension.zip" download>Descarregar extensão v2.1</a><div class="warn">No Brave Android, um website não consegue ler diretamente a sessão de outro domínio. O dashboard continua funcional como PWA, mas a leitura automática da Knok exige um contexto com permissão sobre doctors.knokcare.com.</div></section>
+<section class="tab" data-panel="text"><textarea id="importText" placeholder="05/09/2026;08:00;13:00"></textarea><div class="row-help"><span id="foundCount">0 linhas válidas</span><span id="parseError"></span></div><button class="button primary full" id="confirmText">Importar e substituir mês</button></section></div></dialog>
+
+<dialog id="shiftDialog"><form class="dialog-card" id="shiftForm"><header><div><h2 id="shiftTitle">Adicionar turno</h2><p>Corrige qualquer leitura antes do cálculo.</p></div><button class="icon" type="button" data-close-shift>×</button></header><section class="form-grid"><label>Data<input type="date" id="shiftDate" required></label><label>Início<input type="time" id="shiftStart" required></label><label>Fim<input type="time" id="shiftEnd" required></label><p class="form-error" id="shiftError"></p></section><footer><button class="button" type="button" data-close-shift>Cancelar</button><button class="button primary" type="submit">Guardar</button></footer></form></dialog>
+
+<dialog id="reviewDialog"><div class="dialog-card"><header><div><h2>Rever sincronização</h2><p id="reviewSummary">Foram detetadas alterações.</p></div><button class="icon" data-close-review>×</button></header><section class="review-body"><div class="review-grid"><div><strong>Novos</strong><div id="reviewAdded" class="change-list"></div></div><div><strong>A remover</strong><div id="reviewRemoved" class="change-list danger-list"></div></div></div><div id="reviewDiagnostics" class="diagnostics"></div></section><footer><button class="button" id="keepExisting">Manter existentes</button><button class="button primary" id="applyReview">Aplicar sincronização</button></footer></div></dialog>
+
+<script type="module" src="/src/app.js"></script>
+</body></html>

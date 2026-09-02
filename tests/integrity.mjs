@@ -1,0 +1,15 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+const root=path.resolve(new URL('..',import.meta.url).pathname);
+const required=['index.html','styles.css','src/app.js','src/core.mjs','manifest.webmanifest','sw.js','vercel.json','extension/manifest.json','extension/shared.js','extension/content.js','extension/background.js','extension/popup.html','extension/popup.css','extension/popup.js','icons/icon-192.png','icons/icon-512.png'];
+for(const file of required)assert.ok(fs.existsSync(path.join(root,file)),`missing ${file}`);
+const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+for(const ref of ['/styles.css','/src/app.js','/manifest.webmanifest','/knok-remuneracao-extension.zip'])assert.ok(html.includes(ref),`index missing ${ref}`);
+const manifest=JSON.parse(fs.readFileSync(path.join(root,'extension/manifest.json'),'utf8'));
+assert.equal(manifest.version,'2.1.0');
+assert.deepEqual(manifest.content_scripts[0].js,['shared.js','content.js']);
+assert.equal(manifest.host_permissions[0],'https://doctors.knokcare.com/*');
+const webmanifest=JSON.parse(fs.readFileSync(path.join(root,'manifest.webmanifest'),'utf8'));
+assert.equal(webmanifest.icons.length,2);
+console.log('integrity: ok');

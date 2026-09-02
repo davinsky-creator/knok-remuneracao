@@ -1,0 +1,13 @@
+{
+  "name":"knok-remuneracao",
+  "version":"2.1.0",
+  "private":true,
+  "type":"module",
+  "scripts":{
+    "test":"node --test tests/*.test.mjs",
+    "check":"node --check src/core.mjs && node --check src/app.js && node --check extension/shared.js && node --check extension/content.js && node --check extension/background.js && node --check extension/popup.js && node --check sw.js",
+    "integrity":"node tests/integrity.mjs",
+    "smoke":"bash tests/browser-smoke.sh",
+    "verify":"npm test && npm run check && npm run integrity"
+  }
+}

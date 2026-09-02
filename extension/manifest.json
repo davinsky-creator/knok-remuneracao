@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "Knok Remuneração",
+  "version": "2.1.0",
+  "description": "Sincroniza com segurança o calendário mensal autenticado da Knok com o dashboard de remuneração.",
+  "permissions": [
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://doctors.knokcare.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://doctors.knokcare.com/*"
+      ],
+      "js": [
+        "shared.js",
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Knok Remuneração"
+  }
+}
