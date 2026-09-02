@@ -7,3 +7,6 @@ node_modules/
 dist.html
 loader.html
 knok-remuneracao-project-*.zip
+
+.vercel
+.env*
